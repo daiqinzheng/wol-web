@@ -49,21 +49,23 @@ docker run -d --name wol-web -p 8000:8000 --restart unless-stopped `
 
 注意：容器需允许向局域网广播，默认使用 UDP 发送魔术包。如需自定义广播地址，请在页面中修改为你的网段广播地址（例如 `192.168.31.255`）。
 
-## GHCR 推送
+## 通过 GitHub Actions 产物下载镜像（不使用注册表）
 
-1. 将仓库可见性设为 `public`（或在私有仓库使用 GHCR 也可）。
-2. 确保默认分支为 `main` 或 `master`，推送后将自动构建并推送 `latest` 标签到 `ghcr.io/<owner>/<repo>`。
-3. 如推送 tag `v1.0.0`，则生成 `v1.0.0` 与 `arm64-v1.0.0` 标签。
+本项目的 CI 会在云端构建 `linux/arm64` 的镜像，并将镜像以 tar 包形式作为 Artifact 上传；若是 Tag 触发，还会附加到 Release。
 
-拉取并运行：
+步骤：
+1. 推送到 `main/master` 或打一个 Tag（例如 `v1.0.0`）以触发工作流。
+2. 打开 Actions 对应运行，下载名为 `wol-web-arm64-image` 的工件，其中包含：
+	- `wol-web-arm64.tar`（镜像）
+	- `wol-web-arm64.tar.sha256`（校验）
+3. 复制到 ARM64 Ubuntu 小主机后校验并导入：
 
-```powershell
-docker pull ghcr.io/<owner>/<repo>:latest
-docker run -d --name wol-web --network host --restart unless-stopped `
-	-e DEFAULT_MAC=24:4B:FE:02:33:B9 `
-	-e DEFAULT_BROADCAST=192.168.31.255 `
-	ghcr.io/<owner>/<repo>:latest
+```bash
+sha256sum -c wol-web-arm64.tar.sha256
+docker load -i wol-web-arm64.tar
 ```
+
+导入后使用上文“Docker 运行”命令启动（镜像名会是构建时生成的名，若未指定，默认为 `latest` 的匿名镜像名；你可用 `docker images` 查看并替换命令中的镜像名）。
 
 ## 常见问题
 
