@@ -1,0 +1,12 @@
+services:
+  wol-web:
+    image: ghcr.io/OWNER/REPO:latest # 推送后替换为你的镜像地址
+    container_name: wol-web
+    restart: unless-stopped
+    network_mode: host # 推荐使用 host 网络，这样广播包能直接发到局域网
+    environment:
+      - DEFAULT_MAC=24:4B:FE:02:33:B9
+      - DEFAULT_BROADCAST=192.168.31.255
+    # 如不使用 host 网络，可改为桥接网络并暴露端口：
+    # ports:
+    #   - "8000:8000"
