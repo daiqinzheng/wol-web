@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 # Build stage to compile wheels (ensures smallest runtime)
-FROM base AS builder
+FROM --platform=$TARGETPLATFORM base AS builder
 WORKDIR /w
 RUN apk add --no-cache gcc musl-dev linux-headers
 COPY requirements.txt .
